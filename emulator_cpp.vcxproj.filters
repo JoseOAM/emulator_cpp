@@ -18,15 +18,9 @@
     <ClCompile Include="Main.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
-    <ClCompile Include="Register.h">
-      <Filter>Arquivos de Recurso</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
-      <Filter>Arquivos de Recurso</Filter>
-    </ClInclude>
-    <ClInclude Include="Instructions.h">
       <Filter>Arquivos de Recurso</Filter>
     </ClInclude>
   </ItemGroup>
