@@ -23,5 +23,11 @@
     <ClInclude Include="Main.h">
       <Filter>Arquivos de Recurso</Filter>
     </ClInclude>
+    <ClInclude Include="CPU.h">
+      <Filter>Arquivos de Recurso</Filter>
+    </ClInclude>
+    <ClInclude Include="Decoder.h">
+      <Filter>Arquivos de Recurso</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

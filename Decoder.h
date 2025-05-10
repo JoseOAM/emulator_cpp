@@ -1,52 +1,39 @@
-#ifndef __Main_h
-#define __Main_h
+#ifndef __Decoder_h
+#define __Decoder_h
 
-#include <stdexcept>
 #include <cstdio>
-#include "CPU.h"
-#include "Decoder.h"
+#include <cassert>
 
-int* registers = new int[32]();
-int programCounter = 0;
-
-static void executeUType(int instruction) {
-
-    for (int i = 0; i < 32; i++) {
-        printf("Register[%d] = %d\n", i, registers[i]);
-    }
+static char* decodeUType(int instruction) {
 
     int opcode = instruction & 0x7F;
     int rd = (instruction >> 7) & 0x1F;
     int imm = instruction >> 12;
+    char* operation = (char*) malloc(64 * sizeof(char));
 
-    switch (opcode) {
-    case 0x37:
-    {
-        registers[rd] = imm;
-        break;
+    if (operation != NULL) {
+        switch (opcode) {
+        case 0x37:
+        {
+            snprintf(operation, 64 * sizeof(char), "lui rd=%d, imm=%d", rd, imm);
+            break;
+        }
+        case 0x17:
+        {
+            snprintf(operation, 64 * sizeof(char), "auipc rd=%d, imm=%d", rd, imm);
+            break;
+        }
+        default:
+            snprintf(operation, 64 * sizeof(char), "Unknown");
+            break;
+        }
     }
-    case 0x17:
-    {
-        programCounter -= 4; // Adjust for the default increment
-        registers[rd] = imm + programCounter;
-        programCounter += 4;
-        break;
-    }
-    default:
-        break;
-    }
-    printf("Executing: %d rd=%d, imm=%d\n", opcode, imm, rd);
 
-    for (int i = 0; i < 32; i++) {
-        printf("Register[%d] = %d\n", i, registers[i]);
-    }
+    return operation;
 }
 
-static void executeJType(int instruction) {
+static char* decodeJType(int instruction) {
 
-    for (int i = 0; i < 32; i++) {
-        printf("Register[%d] = %d\n", i, registers[i]);
-    }
     int imm20 = (instruction >> 31) & 0x1;
     int imm10_1 = (instruction >> 21) & 0x3FF;
     int imm11 = (instruction >> 20) & 0x1;
@@ -56,24 +43,18 @@ static void executeJType(int instruction) {
     int rd = (instruction >> 7) & 0x1F;
     int imm = (imm20 << 20) | (imm19_12 << 12) | (imm11 << 11) | (imm10_1 << 1);
 
-    imm = signExtendImmediate(imm, 20);
-    registers[rd] = programCounter;
-    programCounter += imm - 4; 
-
-    programCounter -= 4;
-    registers[rd] = imm + programCounter;
-    programCounter += 4;
-
-    printf("Executing: %d rd=%d, imm=%d\n", opcode, imm, rd);
-
-    for (int i = 0; i < 32; i++) {
-        printf("Register[%d] = %d\n", i, registers[i]);
+    char* operation = (char*) malloc(64 * sizeof(char));
+    if (operation != NULL) {
+        snprintf(operation, 64 * sizeof(char), "jal rd=%d, imm=%d", rd, imm);
     }
+
+    return operation;
 }
 
-static void executeInstruction(int instruction) {
+static char* decodeInstruction(int instruction) {
 
     int opcode = instruction & 0x7F;
+    char* operation = NULL;
 
     switch (opcode) {
     case 0x33:
@@ -114,12 +95,12 @@ static void executeInstruction(int instruction) {
     case 0x37:
     case 0x17:
     {
-        executeUType(instruction);
+        operation = decodeUType(instruction);
         break;
     };
     case 0x6F:
     {
-        printf("Instruction J-Type %d\n", instruction);
+        operation = decodeJType(instruction);
         break;
     };
     default:
@@ -127,11 +108,12 @@ static void executeInstruction(int instruction) {
         printf("Unknown Type\n");
         char msg[256];
         snprintf(msg, sizeof(msg), "Unknown operation: %d", opcode);
-        programCounter -= 4; // Revert PC increment if the operation is unknown
         throw std::runtime_error(msg);
         break;
     };
     };
+
+    return operation;
 }
 
 #endif
