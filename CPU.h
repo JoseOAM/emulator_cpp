@@ -1,18 +1,50 @@
-#ifndef __CPU_h
-#define __CPU_h
+#pragma once
 
-static int signExtendImmediate(int immediate, int bitWidth) {
-    if (bitWidth <= 0 || bitWidth >= 32) {
-        return immediate;
-    }
+#include <stdio.h>
+#include <cstdint>
+#include <stdexcept>
+#include <time.h>
+#include "MemoryException.h"
 
-    int mask = 1 << (bitWidth - 1);
-    immediate = immediate & ((1 << bitWidth) - 1);
+class CPU {
+public:
+    CPU(Bus bus);
+    ~CPU();
 
-    if ((immediate & mask) != 0) {
-        immediate |= ~((1 << bitWidth) - 1);
-    }
-    return immediate;
-}
+    void setCsrRegister(int index, int value);
+    void setStartTime();
 
-#endif
+    void executeInstruction(int instruction);
+
+private:
+    long long startTime;
+    int MIE = 772;
+    int MTVEC = 773;
+    int MEPC = 833;
+    int MCAUSE = 834;
+    int MTVAL = 835;
+    int MIP = 836;
+
+    int* registers;
+    int* csrRegisters;
+    int programCounter;
+
+    Bus* bus;
+    GUI* gui;
+
+    void initializeRegisters();
+    int signExtendImmediate(int immediate, int bitWidth);
+    void executeRType(int instruction);
+    void executeITypeJumpAndLinkRegister(int instruction);
+    void executeITypeLoad(int instruction);
+    void executeITypeImmediate(int instruction);
+    void executeITypeControlStatusRegister(int instruction);
+    void executeSType(int instruction);
+    void executeBType(int instruction);
+    void executeUType(int instruction);
+    void executeJType(int instruction);
+
+    void executeEcallType();
+    void executeEbreakType();
+    void executeMretType();
+};

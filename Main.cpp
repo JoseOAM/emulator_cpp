@@ -3,40 +3,60 @@
 int main()
 {
     char* operation = NULL;
-    uint32_t instruction;
 
-    instruction = 0b00000000000000011101001010110111;
-    operation = decodeInstruction(instruction);
-    if (operation != NULL) {
-        printf("%s\n", operation);
-        assert(strcmp(operation, "lui rd=5, imm=29") == 0);
-        free(operation);
-    }
-    else {
-        printf("Error: operation is NULL\n");
-    }
+    test_instruction(0b00000000000000011000001010110011, "add x5, x3, x0");
+    test_instruction(0b01000000000000011000001010110011, "sub x5, x3, x0");
+    test_instruction(0b00000000000000011001001010110011, "sll x5, x3, x0");
+    test_instruction(0b00000000000000011010001010110011, "slt x5, x3, x0");
+    test_instruction(0b00000000000000011011001010110011, "sltu x5, x3, x0");
+    test_instruction(0b00000000000000011100001010110011, "xor x5, x3, x0");
+    test_instruction(0b00000000000000011101001010110011, "srl x5, x3, x0");
+    test_instruction(0b01000000000000011101001010110011, "sra x5, x3, x0");
+    test_instruction(0b00000000000000011110001010110011, "or x5, x3, x0");
+    test_instruction(0b00000000000000011111001010110011, "and x5, x3, x0");
 
-    instruction = 0b00000000000000011000001010010111;
-    operation = decodeInstruction(instruction);
-    if (operation != NULL) {
-        printf("%s\n", operation);
-        assert(strcmp(operation, "auipc rd=5, imm=24") == 0);
-        free(operation);
-    }
-    else {
-        printf("Error: operation is NULL\n");
-    }
+    test_instruction(0b00000000000000011101001010110111, "lui x5, 29");
+    test_instruction(0b00000000000000011000001010010111, "auipc x5, 24");
+    test_instruction(0b00000000000000011000001011101111, "jal x5, 98304");
+    test_instruction(0b00000000000000011000001011100111, "jalr x5, 0(x3)");
 
-    instruction = 0b00000000000000011000001011101111;
-    operation = decodeInstruction(instruction);
-    if (operation != NULL) {
-        printf("%s\n", operation);
-        assert(strcmp(operation, "jal rd=5, imm=98304") == 0);
-        free(operation);
-    }
-    else {
-        printf("Error: operation is NULL\n");
-    }
+    test_instruction(0b00000000000000011000001010000011, "lb x5, 0(x3)");
+    test_instruction(0b00000000000000011001001010000011, "lh x5, 0(x3)");
+    test_instruction(0b00000000000000011010001010000011, "lw x5, 0(x3)");
+    test_instruction(0b00000000000000011100001010000011, "lbu x5, 0(x3)");
+    test_instruction(0b00000000000000011101001010000011, "lhu x5, 0(x3)");
+
+    test_instruction(0b00000000000000011000001011100011, "beq x3, x0, 2052");
+    test_instruction(0b00000000000000011001001011100011, "bne x3, x0, 2052");
+    test_instruction(0b00000000000000011100001011100011, "blt x3, x0, 2052");
+    test_instruction(0b00000000000000011101001011100011, "bge x3, x0, 2052");
+    test_instruction(0b00000000000000011110001011100011, "bltu x3, x0, 2052");
+    test_instruction(0b00000000000000011111001011100011, "bgeu x3, x0, 2052");
+
+    test_instruction(0b00000000000000011000001010100011, "sb x0, 5(x3)");
+    test_instruction(0b00000000000000011001001010100011, "sh x0, 5(x3)");
+    test_instruction(0b00000000000000011010001010100011, "sw x0, 5(x3)");
+
+    test_instruction(0b00000000000000011000001010010011, "addi x5, x3, 0");
+    test_instruction(0b00000000000000011010001010010011, "slti x5, x3, 0");
+    test_instruction(0b00000000000000011011001010010011, "sltiu x5, x3, 0");
+    test_instruction(0b00000000000000011100001010010011, "xori x5, x3, 0");
+    test_instruction(0b00000000000000011110001010010011, "ori x5, x3, 0");
+    test_instruction(0b00000000000000011111001010010011, "andi x5, x3, 0");
+
+    test_instruction(0b00000000000000011001001010010011, "slli x5, x3, 0");
+    test_instruction(0b00000000000000011101001010010011, "srli x5, x3, 0");
+    test_instruction(0b01000000000000011101001010010011, "srai x5, x3, 0");
+
+    test_instruction(0b00000000000000011000001011110011, "ecall");
+    test_instruction(0b00000000000100011000001011110011, "ebreak");
+
+    test_instruction(0b00000000000000011001001011110011, "csrrw x5, 0, x3");
+    test_instruction(0b00000000000000011010001011110011, "csrrs x5, 0, x3");
+    test_instruction(0b00000000000000011011001011110011, "csrrc x5, 0, x3");
+    test_instruction(0b00000000000000011101001011110011, "csrrwi x5, 0, 3");
+    test_instruction(0b00000000000000011110001011110011, "csrrsi x5, 0, 3");
+    test_instruction(0b00000000000000011111001011110011, "csrrci x5, 0, 3");
 
     return 0;
 }
