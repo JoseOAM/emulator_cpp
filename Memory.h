@@ -10,6 +10,7 @@ public:
     Memory(int memorySize);
     ~Memory();
 
+    int getMemorySize();
     void write(int beginDataPosition, uint8_t* value, int valueSize);
     void writeFromInt(int beginDataPosition, int* value, int valueSize);
     uint8_t* read(int beginDataPosition, int endDataPosition);

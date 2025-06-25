@@ -1,37 +1,40 @@
 #pragma once
 
-#include <stdio.h>
-#include <cstdint>
 #include <stdexcept>
-#include <time.h>
-#include "MemoryException.h"
+#include <ctime>
+#include "CPU.h"
+#include "Bus.h"
+#include "CPUInterrupt.h"
 
-class CPU {
+#define MIE 772
+#define MTVEC 773
+#define MEPC 833
+#define MCAUSE 834
+#define MTVAL 835
+#define MIP 836
+#define CLOCK 1000
+
+class CPU : public CPUInterrupt {
 public:
-    CPU(Bus bus);
+    CPU(Bus* bus, Memory* memory);
     ~CPU();
 
+    void run();
+    void processNextInstruction();
     void setCsrRegister(int index, int value);
-    void setStartTime();
-
     void executeInstruction(int instruction);
 
 private:
     long long startTime;
-    int MIE = 772;
-    int MTVEC = 773;
-    int MEPC = 833;
-    int MCAUSE = 834;
-    int MTVAL = 835;
-    int MIP = 836;
-
     int* registers;
     int* csrRegisters;
     int programCounter;
 
     Bus* bus;
-    GUI* gui;
+    Memory* memory;
+    //GUI* gui;
 
+    void interruptHandler();
     void initializeRegisters();
     int signExtendImmediate(int immediate, int bitWidth);
     void executeRType(int instruction);

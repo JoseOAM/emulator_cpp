@@ -127,18 +127,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bus.cpp" />
+    <ClCompile Include="ByteBuffer.cpp" />
     <ClCompile Include="CPU.cpp" />
+    <ClCompile Include="CPUInterrupt.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="ProgramUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bus.h" />
+    <ClInclude Include="ByteBuffer.h" />
+    <ClInclude Include="ComponentType.h" />
     <ClInclude Include="CPU.h" />
+    <ClInclude Include="CPUInterrupt.h" />
     <ClInclude Include="Decoder.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryException.h" />
+    <ClInclude Include="ProgramUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,29 +1,61 @@
 #include "CPU.h"
 
-CPU::CPU(Bus bus) {
+CPU::CPU(Bus* bus, Memory* memory) {
     this->registers = new int[32]();
     this->csrRegisters = new int[4096]();
     initializeRegisters();
     this->bus = bus;
+    this->memory = memory;
 }
 
 CPU::~CPU() {
-    free(this->registers);
-    free(this->csrRegisters);
+    delete[] this->registers;
+    delete[] this->csrRegisters;
 }
 
 void CPU::initializeRegisters() {
-    this->registers[2] = Memory.getMemorySize() - 4;
-    this->registers[3] = Memory.getMemorySize() / 2;
+    this->registers[2] = this->memory->getMemorySize() - 4;
+    this->registers[3] = this->memory->getMemorySize() / 2;
     this->registers[8] = this->registers[2];
+}
+
+void CPU::run() {
+    this->setStartTime();
+    while (!this->isInterrupted()) {
+        this->processNextInstruction();
+    }
+}
+
+void CPU::interruptHandler() {
+    this->csrRegisters[MEPC] = this->programCounter;
+    setCsrRegister(MIP, 1);
+    if (this->csrRegisters[MCAUSE] >= 2) {
+        setCsrRegister(MTVAL, this->csrRegisters[MCAUSE] - 2);
+        setCsrRegister(MCAUSE, 2);
+    }
+    this->programCounter = this->csrRegisters[MTVEC] + 4 * (this->csrRegisters[MCAUSE] - 1);
+    setCsrRegister(MCAUSE, 0);
+}
+
+void CPU::processNextInstruction() {
+    try {
+        if (this->csrRegisters[MIE] == 1 && this->csrRegisters[MIP] == 0) {
+            this->isInterruptEnabled = true;
+            setCsrRegister(MCAUSE, this->checkInterruption(CLOCK));
+            if (this->csrRegisters[MCAUSE] != 0) {
+                interruptHandler();
+            }
+        }
+        int instruction = this->bus->read(this->programCounter, this->programCounter + 4)[0];
+        executeInstruction(instruction);
+    }
+    catch (const std::exception& e) {
+        printf("Error: %s\n", e.what());
+    }
 }
 
 void CPU::setCsrRegister(int index, int value) {
     this->csrRegisters[index] = value;
-}
-
-void CPU::setStartTime() {
-    startTime = time(NULL);
 }
 
 int CPU::signExtendImmediate(int immediate, int bitWidth) {
@@ -136,7 +168,7 @@ void CPU::executeITypeLoad(int instruction) {
         return;
     }
 
-    int value = this->bus.read(address, address + 4)[0];
+    int value = this->bus->read(address, address + 4)[0];
 
     switch (funct3) {
     case 0b000:
@@ -318,20 +350,20 @@ void CPU::executeSType(int instruction) {
     switch (funct3) {
     case 0b000:
     {
-        uint8_t value = this->registers[rs2] & 0xFF;
-        this->bus.write(address, &value, 1);
+        int value = this->registers[rs2] & 0xFF;
+        this->bus->write(address, &value, 1);
         break;
     }
     case 0b001:
     {
-        uint16_t value = this->registers[rs2] & 0xFFFF;
-        this->bus.write(address, (uint8_t*)&value, 2);
+        int value = this->registers[rs2] & 0xFFFF;
+        this->bus->write(address, &value, 2);
         break;
     }
     case 0b010:
     {
-        uint32_t value = this->registers[rs2];
-        this->bus.write(address, (uint8_t*)&value, 4);
+        int value = this->registers[rs2];
+        this->bus->write(address, &value, 4);
         break;
     }
     default:
@@ -439,8 +471,8 @@ void CPU::executeEcallType() {
 }
 
 void CPU::executeEbreakType() {
-    int timerInterruptCount = this->bus.read(1024, 1028)[0];
-    int keyInterruptCount = this->bus.read(1028, 1032)[0];
+    int timerInterruptCount = this->bus->read(1024, 1028)[0];
+    int keyInterruptCount = this->bus->read(1028, 1032)[0];
 
     throw MemoryException("Program has terminated via syscall exit.");
 }
@@ -452,61 +484,68 @@ void CPU::executeMretType() {
 }
 
 void CPU::executeInstruction(int instruction) {
+    registers[0] = 0;
     int opcode = instruction & 0x7F;
+    this->programCounter += 4;
 
-    switch (opcode) {
-    case 0x33:
-    {
-        executeRType(instruction);
-        break;
-    };
-    case 0x67:
-    {
-        executeITypeJumpAndLinkRegister(instruction);
-        break;
-    };
-    case 0x03:
-    {
-        executeITypeLoad(instruction);
-        break;
-    };
-    case 0x13:
-    {
-        executeITypeImmediate(instruction);
-        break;
-    };
-    case 0x73:
-    {
-        executeITypeControlStatusRegister(instruction);
-        break;
-    };
-    case 0x23:
-    {
-        executeSType(instruction);
-        break;
-    };
-    case 0x63:
-    {
-        executeBType(instruction);
-        break;
-    };
-    case 0x37:
-    case 0x17:
-    {
-        executeUType(instruction);
-        break;
-    };
-    case 0x6F:
-    {
-        executeJType(instruction);
-        break;
-    };
-    default:
-    {
-        char msg[256];
-        snprintf(msg, sizeof(msg), "Unknown operation: %d", opcode);
-        throw std::runtime_error(msg);
-        break;
-    };
-    };
+    try {
+        switch (opcode) {
+        case 0x33:
+        {
+            executeRType(instruction);
+            break;
+        };
+        case 0x67:
+        {
+            executeITypeJumpAndLinkRegister(instruction);
+            break;
+        };
+        case 0x03:
+        {
+            executeITypeLoad(instruction);
+            break;
+        };
+        case 0x13:
+        {
+            executeITypeImmediate(instruction);
+            break;
+        };
+        case 0x73:
+        {
+            executeITypeControlStatusRegister(instruction);
+            break;
+        };
+        case 0x23:
+        {
+            executeSType(instruction);
+            break;
+        };
+        case 0x63:
+        {
+            executeBType(instruction);
+            break;
+        };
+        case 0x37:
+        case 0x17:
+        {
+            executeUType(instruction);
+            break;
+        };
+        case 0x6F:
+        {
+            executeJType(instruction);
+            break;
+        };
+        default:
+        {
+            char msg[256];
+            snprintf(msg, sizeof(msg), "Unknown operation: %d", opcode);
+            throw std::runtime_error(msg);
+            break;
+        };
+        };
+    }
+    catch (const std::exception& e) {
+        printf("Error: %s\n", e.what());
+    }
 }

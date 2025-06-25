@@ -1,12 +1,16 @@
 #include "Memory.h"
 
+int Memory::getMemorySize() {
+    return this->memorySize;
+}
+
 Memory::Memory(int memorySize) {
 	this->memory = new uint8_t[memorySize];
 	this->memorySize = memorySize;
 }
 
 Memory::~Memory() {
-	free(this->memory);
+    delete[] this->memory;
 }
 
 void Memory::write(int beginDataPosition, uint8_t* value, int valueSize) {
