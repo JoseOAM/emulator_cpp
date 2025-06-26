@@ -18,6 +18,50 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Bus.h" />
+    <ClInclude Include="include\ByteBuffer.h" />
+    <ClInclude Include="include\ComponentType.h" />
+    <ClInclude Include="include\CPU.h" />
+    <ClInclude Include="include\CPUInterrupt.h" />
+    <ClInclude Include="include\Decoder.h" />
+    <ClInclude Include="include\FrameBuffer.h" />
+    <ClInclude Include="include\glad\gl.h" />
+    <ClInclude Include="include\GLFW\glfw3.h" />
+    <ClInclude Include="include\GLFW\glfw3native.h" />
+    <ClInclude Include="include\GPU.h" />
+    <ClInclude Include="include\KHR\khrplatform.h" />
+    <ClInclude Include="include\Main.h" />
+    <ClInclude Include="include\Memory.h" />
+    <ClInclude Include="include\MemoryException.h" />
+    <ClInclude Include="include\ProgramUtils.h" />
+    <ClInclude Include="include\RenderData.h" />
+    <ClInclude Include="include\ShaderProgram.h" />
+    <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="include\VideoFrameToVertexArray.h" />
+    <ClInclude Include="include\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Bus.cpp" />
+    <ClCompile Include="src\ByteBuffer.cpp" />
+    <ClCompile Include="src\CPU.cpp" />
+    <ClCompile Include="src\CPUInterrupt.cpp" />
+    <ClCompile Include="src\FrameBuffer.cpp" />
+    <ClCompile Include="src\gl.c" />
+    <ClCompile Include="src\GPU.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Memory.cpp" />
+    <ClCompile Include="src\ProgramUtils.cpp" />
+    <ClCompile Include="src\RenderData.cpp" />
+    <ClCompile Include="src\ShaderProgram.cpp" />
+    <ClCompile Include="src\VideoFrameToVertexArray.cpp" />
+    <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="tests\CPUTest.cpp" />
+    <ClCompile Include="tests\DecoderTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\icon.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -70,6 +114,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>E:\Code\GPU-lib\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -104,10 +151,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>E:\Code\emulator_cpp\include;E:\Code\GPU-lib\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalModuleDependencies>opengl32.lib;glfw3.lib;%(AdditionalModuleDependencies)</AdditionalModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Code\GPU-lib\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -126,29 +177,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Bus.cpp" />
-    <ClCompile Include="ByteBuffer.cpp" />
-    <ClCompile Include="CPU.cpp" />
-    <ClCompile Include="CPUInterrupt.cpp" />
-    <ClCompile Include="FrameBuffer.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Memory.cpp" />
-    <ClCompile Include="ProgramUtils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Bus.h" />
-    <ClInclude Include="ByteBuffer.h" />
-    <ClInclude Include="ComponentType.h" />
-    <ClInclude Include="CPU.h" />
-    <ClInclude Include="CPUInterrupt.h" />
-    <ClInclude Include="Decoder.h" />
-    <ClInclude Include="FrameBuffer.h" />
-    <ClInclude Include="Main.h" />
-    <ClInclude Include="Memory.h" />
-    <ClInclude Include="MemoryException.h" />
-    <ClInclude Include="ProgramUtils.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
